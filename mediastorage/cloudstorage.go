@@ -1,4 +1,4 @@
-package cloudstorage
+package mediastorage
 
 import (
 	"cloud.google.com/go/storage"
@@ -17,7 +17,7 @@ var StorageBucketInstance *StorageBucket
 
 
 func init() {
-	log.Println("Creating storage bucket instance")
+	log.Println("Creating mediastorage bucket instance")
 	client, _ = storage.NewClient(ctx)
 }
 
