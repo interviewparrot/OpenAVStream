@@ -1,17 +1,16 @@
-package stream
+package mediastream
 
 import (
 	"github.com/interviewparrot/OpenAVStream/mediaserver"
-	"github.com/interviewparrot/ParrotServer/cloudstorage"
+	"github.com/interviewparrot/OpenAVStream/mediastorage"
 	"log"
 	"time"
 )
 
 func ProcessIncomingMsg(session *mediaserver.Session, msg []byte) {
-	log.Println("Writing video chunk")
-	objectKey := mediaserver.AUDIO_PREFIX + "/" + session.SessionId +"/"+ GetCurrentTime()+".wav"
-	cloudstorage.StorageBucketInstance.PutObject(objectKey, msg)
-	log.Println("incoming data")
+	log.Println("Writing media chunk")
+	objectKey := mediaserver.AUDIO_PREFIX + "/" + session.SessionId +"/"+ GetCurrentTime()+".webm"
+	mediastorage.LocalStorageInstance.PutData(objectKey, msg)
 }
 
 

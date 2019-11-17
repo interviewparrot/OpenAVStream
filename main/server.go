@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/interviewparrot/OpenAVStream/mediaserver"
-	"github.com/interviewparrot/OpenAVStream/stream"
+	"github.com/interviewparrot/OpenAVStream/mediastream"
 	"log"
 	"net/http"
 )
@@ -16,7 +16,7 @@ import (
 var upgrader = websocket.Upgrader{} // use default options
 
 
-func ProcessTextMessage(msg []byte) {
+func ProcessMessage(msg []byte) {
 	clientMessage := mediaserver.ClientMsg{}
 	json.Unmarshal(msg, &clientMessage)
 	if mediaserver.IsSessionExist(clientMessage.SessionId) {
@@ -34,11 +34,11 @@ func ProcessTextMessage(msg []byte) {
 				return
 			}
 			if session.State == mediaserver.SESSION_ENDED {
-				stream.ProcessIncomingMsg(mediaserver.SessionStore[clientMessage.SessionId], data)
+				mediastream.ProcessIncomingMsg(mediaserver.SessionStore[clientMessage.SessionId], data)
 				log.Println("Session has ended closing the connection")
 				session.ConnGroup.UserConnection.Conn.Close()
 			} else {
-				stream.ProcessIncomingMsg(mediaserver.SessionStore[clientMessage.SessionId], data)
+				mediastream.ProcessIncomingMsg(mediaserver.SessionStore[clientMessage.SessionId], data)
 			}
 
 		}
@@ -65,7 +65,7 @@ func adminEcho(w http.ResponseWriter, r *http.Request) {
 		if mt == 2 {
 			log.Println("Cannot process binary message right now")
 		} else {
-			ProcessTextMessage(message)
+			ProcessMessage(message)
 		}
 	}
 }
@@ -103,7 +103,7 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 		if mt == 2 {
 			log.Println("Cannot process binary message right now")
 		} else {
-			ProcessTextMessage(message)
+			ProcessMessage(message)
 		}
 	}
 }
