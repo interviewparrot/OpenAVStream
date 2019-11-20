@@ -12,6 +12,10 @@ type LocalStorage struct {
 
 var LocalStorageInstance *LocalStorage
 
+func init() {
+	LocalStorageInstance = &LocalStorage{dirName:"/tmp"}
+}
+
 
 // put data
 func (instance *LocalStorage) PutData(key string, data []byte) {

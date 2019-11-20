@@ -121,5 +121,5 @@ func main() {
 	log.SetFlags(0)
 	http.HandleFunc("/session", sessionHandler)
 	http.HandleFunc("/ping", pingHandler)
-	log.Fatal(http.ListenAndServe(":"+ mediaserver.GetProperty("parrot.server.port"), nil))
+	log.Fatal(http.ListenAndServe(":"+ mediaserver.GetProperty("openavstream.server.port"), nil))
 }

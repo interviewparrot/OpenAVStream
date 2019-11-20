@@ -22,8 +22,11 @@ func init() {
 	}
 	log.Println("Loading the properties for profile: " + PROFILE)
 	PROPERTIES = properties.MustLoadFile("resources/application-"+PROFILE+".properties", properties.UTF8)
-	server.BUCKET_NAME = PROPERTIES.MustGet("video-mediastorage-bucket")
-	mediastorage.StorageBucketInstance = mediastorage.CreateStorageBucket(server.BUCKET_NAME)
+	server.BUCKET_NAME = PROPERTIES.MustGet("openavstream.mediastorage.bucket")
+	storageType := GetProperty("openavstream.mediastorage.type")
+	if storageType == "cloud" {
+		mediastorage.StorageBucketInstance = mediastorage.CreateStorageBucket(server.BUCKET_NAME)
+	}
 }
 
 func GetProperty(key string) string {
