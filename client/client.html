@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>OpenAVStream Client</title>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">OpenAVStream</a>
+    <a href="#" class="btn btn-danger js-start-recording">Start Recording</a>
+</nav>
+<section class="space-0">
+    <div class="container-fluid js-container">
+
+        <div class="card-group p-2 p-md-4">
+            <div class="card text-white text-center bg-info">
+                <div class="card-body">
+                         <video id="user_video_player" width="400" height="400" autoplay/>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script>
+    $('.js-start-recording').click(function(event){
+        event.preventDefault();
+
+        startRecording();
+    });
+
+
+    function startRecording() {
+        var resetChunks = false;
+        console.log("Document ready")
+        var ws = new WebSocket("ws://localhost:4040/session");
+        ws.onmessage = function(event) {
+            console.log(event.data);
+        }
+
+        ws.onopen = function() {
+            console.log("clientWebSocket.readyState", "websocketstatus");
+            ws.send("ESTABLISHED");
+        }
+
+        ws.onclose = function(error) {
+            console.log("clientWebSocket.onclose", ws, error);
+            //events("Closing connection");
+        }
+
+        ws.onerror = function(error) {
+            console.log("clientWebSocket.onerror", ws, error);
+            //events("An error occured");
+        }
+
+        const video = document.querySelector('video');
+        videoChunks = [];
+        const mediaHandleSuccess = function(stream) {
+            video.srcObject = stream;
+            var options = {
+                audioBitsPerSecond : 128000,
+                videoBitsPerSecond : 2500000
+            }
+            mediaRecorder = new MediaRecorder(stream, options);
+            console.log("mediaRecorder.mimeType", mediaRecorder.mimeType);
+            mediaRecorder.start(5000);
+            mediaRecorder.ondataavailable = function(e) {
+                console.log("pushing video chunk");
+                if (resetChunks) {
+                    console.log("Resetting the chunks array");
+                    videoChunks.length = 0;
+                    resetChunks = false;
+                }
+                videoChunks.push(e.data);
+            }
+            setInterval(uploadChunk, 8*1000);
+        };
+
+        navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+            .then(mediaHandleSuccess)
+            .catch(function(err) {
+                /* handle the error */
+                console.log("Error when requesting audio and video from user", err);
+                alert("Could not get access to your audio/video. "+err);
+            });
+        // Upload the chunk of data to the server
+        function uploadChunk() {
+            console.log("Uploading video chunks" + videoChunks.length);
+            if(mediaRecorder) {
+                resetChunks = true;
+                const bigVideoBlob = new Blob(videoChunks);
+                resetChunks = true;
+                var sizeInBytes = bigVideoBlob.size;
+                console.log(sizeInBytes);
+                ws.send(bigVideoBlob);
+            }
+        }
+    }
+</script>
+</body>
+</html>
