@@ -14,6 +14,7 @@ import (
 var upgrader = websocket.Upgrader{} // use default options
 
 func ProcessMessage(msg []byte) {
+	//TODO: Add you message processing logic here
 	log.Println("handle incoming bytes")
 }
 
