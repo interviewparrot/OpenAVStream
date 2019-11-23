@@ -17,14 +17,14 @@ const(
 
 var redidClient *redis.Client
 
-func init() {
+/*func init() {
 	redidClient = redis.NewClient(&redis.Options{
 		Addr:     PROPERTIES.MustGet("openavstream.redis.connection"),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
 }
-
+*/
 var SessionStore = map[string]*Session {
 }
 
@@ -73,10 +73,6 @@ func CreateNewSession(conn *websocket.Conn) *Session {
 	conngroup := ConnectionGroup{userConnect, nil}
 	session := Session { id, "",conngroup , "STARTED"}
 	SessionStore[id] = &session
-	err := redidClient.Set(id, "value", 0).Err()
-	if err != nil {
-		panic(err)
-	}
 	return &session
 }
 
@@ -108,7 +104,7 @@ func (s *Session) WriteText(data []byte, connType int) {
 
 func newHashId() string {
 	var hd = hashids.NewData()
-	hd.Salt = "Parrot Salt"
+	hd.Salt = "OpenAVStream Salt"
 	h, err := hashids.NewWithData(hd)
 	handleError(err)
 	now := time.Now()

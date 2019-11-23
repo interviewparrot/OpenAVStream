@@ -1,13 +1,11 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/interviewparrot/OpenAVStream/pkg/mediaserver"
-	"github.com/interviewparrot/OpenAVStream/pkg/mediastream"
 	"log"
 	"net/http"
 )
@@ -15,63 +13,8 @@ import (
 
 var upgrader = websocket.Upgrader{} // use default options
 
-
 func ProcessMessage(msg []byte) {
-	clientMessage := mediaserver.ClientMsg{}
-	json.Unmarshal(msg, &clientMessage)
-	if mediaserver.IsSessionExist(clientMessage.SessionId) {
-		session := mediaserver.SessionStore[clientMessage.SessionId]
-		switch cmd := clientMessage.Command; cmd {
-		case mediaserver.CMD_Auth:
-			log.Println("Auth token: " + clientMessage.Data)
-		case mediaserver.CMD_StartSession:
-			log.Println("Starting the conversation..." + clientMessage.Data)
-		case mediaserver.CMD_ReceiveChunk:
-			data, err := base64.StdEncoding.DecodeString(clientMessage.Data)
-			log.Println("receiving chunk for sessionID: "+ clientMessage.SessionId + " and session state is: " + session.State)
-			if err != nil {
-				fmt.Println("error:", err)
-				return
-			}
-			if session.State == mediaserver.SESSION_ENDED {
-				mediastream.ProcessIncomingMsg(mediaserver.SessionStore[clientMessage.SessionId], data)
-				log.Println("Session has ended closing the connection")
-				session.ConnGroup.UserConnection.Conn.Close()
-			} else {
-				mediastream.ProcessIncomingMsg(mediaserver.SessionStore[clientMessage.SessionId], data)
-			}
-
-		}
-	}
-}
-
-func adminEcho(w http.ResponseWriter, r *http.Request) {
-	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
-	c, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Print("upgrade:", err)
-		return
-	}
-	defer c.Close()
-
-	for {
-		mt, message, err := c.ReadMessage()
-		if err != nil {
-
-			log.Println("read:", err)
-			break
-		}
-		log.Printf("message type: %s", mt)
-		if mt == 2 {
-			log.Println("Cannot process binary message right now")
-		} else {
-			ProcessMessage(message)
-		}
-	}
-}
-
-func metrics(w http.ResponseWriter, r *http.Request) {
-
+	log.Println("handle incoming bytes")
 }
 
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
