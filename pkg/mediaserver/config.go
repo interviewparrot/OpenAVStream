@@ -1,8 +1,7 @@
 package mediaserver
 
 import (
-	"github.com/interviewparrot/OpenAVStream/mediastorage"
-	"github.com/interviewparrot/ParrotServer/server"
+	"github.com/interviewparrot/OpenAVStream/pkg/mediastorage"
 	"github.com/magiconair/properties"
 	"log"
 	"os"
@@ -22,10 +21,10 @@ func init() {
 	}
 	log.Println("Loading the properties for profile: " + PROFILE)
 	PROPERTIES = properties.MustLoadFile("resources/application-"+PROFILE+".properties", properties.UTF8)
-	server.BUCKET_NAME = PROPERTIES.MustGet("openavstream.mediastorage.bucket")
+	BUCKET_NAME = PROPERTIES.MustGet("openavstream.mediastorage.bucket")
 	storageType := GetProperty("openavstream.mediastorage.type")
 	if storageType == "cloud" {
-		mediastorage.StorageBucketInstance = mediastorage.CreateStorageBucket(server.BUCKET_NAME)
+		mediastorage.StorageBucketInstance = mediastorage.CreateStorageBucket(BUCKET_NAME)
 	}
 }
 

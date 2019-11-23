@@ -1,8 +1,8 @@
 package mediastream
 
 import (
-	"github.com/interviewparrot/OpenAVStream/mediaserver"
-	"github.com/interviewparrot/OpenAVStream/mediastorage"
+	"github.com/interviewparrot/OpenAVStream/pkg/mediaserver"
+	"github.com/interviewparrot/OpenAVStream/pkg/mediastorage"
 	"log"
 	"time"
 )

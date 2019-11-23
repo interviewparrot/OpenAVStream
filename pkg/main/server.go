@@ -6,8 +6,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/interviewparrot/OpenAVStream/mediaserver"
-	"github.com/interviewparrot/OpenAVStream/mediastream"
+	"github.com/interviewparrot/OpenAVStream/pkg/mediaserver"
+	"github.com/interviewparrot/OpenAVStream/pkg/mediastream"
 	"log"
 	"net/http"
 )
