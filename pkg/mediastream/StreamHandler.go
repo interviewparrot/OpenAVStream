@@ -9,7 +9,7 @@ import (
 
 func ProcessIncomingMsg(session *mediaserver.Session, msg []byte) {
 	log.Println("Writing media chunk")
-	objectKey := mediaserver.AUDIO_PREFIX + "/" + session.SessionId +"/"+ GetCurrentTime()+".webm"
+	objectKey := mediaserver.VIDEO_PREFIX + "/" + session.SessionId +"/"+ GetCurrentTime()+".webm"
 	mediastorage.LocalStorageInstance.PutData(objectKey, msg)
 }
 

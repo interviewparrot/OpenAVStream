@@ -2,7 +2,9 @@ package mediastorage
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
+	"path/filepath"
 )
 
 type LocalStorage struct {
@@ -19,6 +21,11 @@ func init() {
 
 // put data
 func (instance *LocalStorage) PutData(key string, data []byte) {
+
+	dir := filepath.Dir(key)
+	fullPath := instance.dirName +"/"+  dir
+	log.Printf(fullPath)
+	os.MkdirAll(fullPath, 0777)
 	ioutil.WriteFile(instance.dirName+"/"+ key, data, os.ModePerm);
 }
 

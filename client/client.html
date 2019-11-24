@@ -16,6 +16,8 @@
     <a href="#" class="btn btn-danger js-start-recording">Start Recording</a>
 </nav>
 <section class="space-0">
+    <input type="hidden" name="authToken" value="bd2e932a03a19217ab5a1dfb5aa93340" />
+
     <div class="container-fluid js-container">
 
         <div class="card-group p-2 p-md-4">
@@ -44,10 +46,14 @@
 
     function startRecording() {
         var resetChunks = false;
+        var authToken = $("[name='authToken']").val();
+        var sessionId;
         console.log("Document ready")
         var ws = new WebSocket("ws://localhost:4040/session");
         ws.onmessage = function(event) {
             console.log(event.data);
+            var serverMsg = JSON.parse(event.data);
+            sessionId = serverMsg.Data;
         }
 
         ws.onopen = function() {
@@ -104,7 +110,20 @@
                 resetChunks = true;
                 var sizeInBytes = bigVideoBlob.size;
                 console.log(sizeInBytes);
-                ws.send(bigVideoBlob);
+                var reader = new FileReader();
+                var  prefix = "data:*/*;base64,";
+                reader.readAsDataURL(bigVideoBlob);
+                reader.onloadend = function() {
+                    var base64data = reader.result.split(',')[1];
+                    console.log(base64data.slice(0,20));
+                    var msg = {
+                        data: base64data,
+                        SessionId : sessionId,
+                        AuthToken : authToken,
+                        command: "ReceiveChunk",
+                    }
+                    ws.send(JSON.stringify(msg));
+                }
             }
         }
     }

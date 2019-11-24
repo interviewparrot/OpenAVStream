@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/interviewparrot/OpenAVStream/pkg/mediaserver"
+	"github.com/interviewparrot/OpenAVStream/pkg/mediastream"
 	"log"
 	"net/http"
 )
@@ -14,8 +16,22 @@ import (
 var upgrader = websocket.Upgrader{} // use default options
 
 func ProcessMessage(msg []byte) {
-	//TODO: Add you message processing logic here
 	log.Println("handle incoming bytes")
+	clientMessage := mediaserver.ClientMsg{}
+	json.Unmarshal(msg, &clientMessage)
+	if mediaserver.IsSessionExist(clientMessage.SessionId) {
+		session := mediaserver.SessionStore[clientMessage.SessionId]
+		switch cmd := clientMessage.Command; cmd {
+		case mediaserver.CMD_ReceiveChunk:
+			data, err := base64.StdEncoding.DecodeString(clientMessage.Data)
+			log.Println("receiving chunk for sessionID: "+ clientMessage.SessionId + " and session state is: " + session.State)
+			if err != nil {
+				fmt.Println("error:", err)
+				return
+			}
+			mediastream.ProcessIncomingMsg(session, data)
+		}
+	}
 }
 
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
