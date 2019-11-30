@@ -23,6 +23,11 @@ It is being developed in golang.
 ## Performance benchmark
 To be published
 
+## Interview Parrot demo
+https://www.interviewparrot.com/video-interview/candidate/egB2ZApKa6SuYnO75HmB
+
+![interview_practice](https://user-images.githubusercontent.com/43322168/69901684-b994bc80-1352-11ea-9729-787eb1c88d15.png)
+
 ## Developers
 For any queries send a email to developers@interviewparrot.com
 
